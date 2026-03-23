@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Car, Zap, Brain, MessageSquare, BarChart3, Shield, Battery, Gauge, ChevronRight, Sparkles } from "lucide-react"
+import { Car, Zap, Brain, MessageSquare, BarChart3, Shield, Battery, Gauge, ChevronRight, Sparkles, X } from "lucide-react"
 import FeaturesSection from "@/components/features-section"
 import AboutSection from "@/components/about-section"
 import HowItWorksSection from "@/components/how-it-works-section"
@@ -24,6 +24,7 @@ function Badge({ icon, text }: { icon: React.ReactNode; text: string }) {
 export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0)
   const [progress, setProgress] = useState(0)
+  const [showChatModal, setShowChatModal] = useState(false)
   const mountedRef = useRef(true)
 
   useEffect(() => {
@@ -92,7 +93,10 @@ export default function LandingPage() {
               <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">常见问题</a>
             </div>
 
-            <button className="px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors">
+            <button 
+              onClick={() => setShowChatModal(true)}
+              className="px-5 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
               开始体验
             </button>
           </div>
@@ -122,7 +126,10 @@ export default function LandingPage() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-full text-base font-semibold hover:bg-primary/90 transition-all glow-effect flex items-center justify-center gap-2">
+              <button 
+                onClick={() => setShowChatModal(true)}
+                className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-full text-base font-semibold hover:bg-primary/90 transition-all glow-effect flex items-center justify-center gap-2"
+              >
                 <MessageSquare className="w-5 h-5" />
                 立即开始对话
               </button>
@@ -221,6 +228,30 @@ export default function LandingPage() {
 
       {/* Footer Section */}
       <FooterSection />
+
+      {/* Chat Modal */}
+      {showChatModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setShowChatModal(false)}
+          ></div>
+          <div className="relative w-full max-w-5xl h-[700px] bg-card rounded-2xl shadow-2xl overflow-hidden border border-border/50 animate-in fade-in zoom-in duration-200">
+            <button
+              onClick={() => setShowChatModal(false)}
+              className="absolute top-4 right-4 z-10 p-2 bg-background/80 backdrop-blur rounded-full hover:bg-secondary transition-colors"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+            <iframe
+              src="https://udify.app/chatbot/SMk2HtvPDTqW1fHT"
+              style={{ width: '100%', height: '100%', minHeight: '700px' }}
+              className="border-0"
+              allow="microphone"
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
