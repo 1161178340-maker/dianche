@@ -23,6 +23,8 @@ interface PricingPlan {
 export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annually">("monthly")
   const [loading, setLoading] = useState<string | null>(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
   const router = useRouter()
 
   const plans: PricingPlan[] = [
@@ -80,6 +82,16 @@ export default function PricingPage() {
     } finally {
       setLoading(null)
     }
+  }
+
+  const handlePayment = async (planId: string) => {
+    setSelectedPlan(planId)
+    setShowPaymentModal(true)
+  }
+
+  const closePaymentModal = () => {
+    setShowPaymentModal(false)
+    setSelectedPlan(null)
   }
 
   return (
@@ -203,6 +215,66 @@ export default function PricingPage() {
             </p>
           </Card>
         </div>
+
+        {showPaymentModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold">选择支付方式</h3>
+                <button
+                  onClick={closePaymentModal}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div 
+                  className="p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => {
+                    if (selectedPlan) {
+                      closePaymentModal()
+                      handleSubscribe(selectedPlan)
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">ZPay 支付</h4>
+                      <p className="text-sm text-muted-foreground">支持微信、支付宝、银联</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div 
+                  className="p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => {
+                    closePaymentModal()
+                    window.location.href = 'https://pay.zpay.com'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">个人收款码</h4>
+                      <p className="text-sm text-muted-foreground">微信、支付宝扫码支付</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

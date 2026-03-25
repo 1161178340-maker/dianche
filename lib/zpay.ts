@@ -10,37 +10,32 @@ export interface PaymentIntent {
   createdAt: string
 }
 
-export interface ZPayConfig {
+export interface PaymentConfig {
   merchantId: string
   merchantKey: string
   returnUrl: string
   notifyUrl: string
 }
 
-const zpayConfig: ZPayConfig = {
+const paymentConfig: PaymentConfig = {
   merchantId: process.env.ZPAY_MERCHANT_ID || '',
   merchantKey: process.env.ZPAY_MERCHANT_KEY || '',
   returnUrl: process.env.ZPAY_RETURN_URL || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/payment/success`,
   notifyUrl: process.env.ZPAY_NOTIFY_URL || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/zpay/notify`,
 }
 
-export const createPayment = async (amount: number, planId: string, userId: string, description: string = '订阅支付'): Promise<{ url: string; orderId: string } | null> => {
-  if (!zpayConfig.merchantId || !zpayConfig.merchantKey) {
-    console.error('ZPay 配置缺失')
-    return null
-  }
-
+export const createPayment = async (amount: number, planId: string, userId: string, description: string = '订阅支付'): Promise<{ url: string; orderId: string; qrcode?: string } | null> => {
   const orderId = `ZP${Date.now()}${Math.random().toString(36).substr(2, 9)}`
   
   const paymentData = {
-    merchant_id: zpayConfig.merchantId,
+    merchant_id: paymentConfig.merchantId,
     order_id: orderId,
     amount: amount,
     currency: 'CNY',
     subject: description,
     body: description,
-    notify_url: zpayConfig.notifyUrl,
-    return_url: zpayConfig.returnUrl,
+    notify_url: paymentConfig.notifyUrl,
+    return_url: paymentConfig.returnUrl,
     sign_type: 'MD5',
     sign: generateSign(orderId, amount),
   }
@@ -75,11 +70,6 @@ export const createPayment = async (amount: number, planId: string, userId: stri
 }
 
 export const verifyPayment = async (orderId: string, amount: number, sign: string): Promise<boolean> => {
-  if (!zpayConfig.merchantId || !zpayConfig.merchantKey) {
-    console.error('ZPay 配置缺失')
-    return false
-  }
-
   const expectedSign = generateSign(orderId, amount)
   
   if (sign !== expectedSign) {
@@ -120,11 +110,11 @@ export const getPaymentStatus = async (orderId: string): Promise<PaymentIntent |
 
 const generateSign = (orderId: string, amount: number): string => {
   const params = {
-    merchant_id: zpayConfig.merchantId,
+    merchant_id: paymentConfig.merchantId,
     order_id: orderId,
     amount: amount.toString(),
     currency: 'CNY',
-    key: zpayConfig.merchantKey,
+    key: paymentConfig.merchantKey,
   }
 
   const sortedKeys = Object.keys(params).sort()
