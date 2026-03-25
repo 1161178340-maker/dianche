@@ -25,6 +25,11 @@ const zpayConfig: ZPayConfig = {
 }
 
 export const createPayment = async (amount: number, planId: string, userId: string, description: string = '订阅支付'): Promise<{ url: string; orderId: string } | null> => {
+  if (!zpayConfig.merchantId || !zpayConfig.merchantKey) {
+    console.error('ZPay 配置缺失')
+    return null
+  }
+
   const orderId = `ZP${Date.now()}${Math.random().toString(36).substr(2, 9)}`
   
   const paymentData = {
@@ -70,6 +75,11 @@ export const createPayment = async (amount: number, planId: string, userId: stri
 }
 
 export const verifyPayment = async (orderId: string, amount: number, sign: string): Promise<boolean> => {
+  if (!zpayConfig.merchantId || !zpayConfig.merchantKey) {
+    console.error('ZPay 配置缺失')
+    return false
+  }
+
   const expectedSign = generateSign(orderId, amount)
   
   if (sign !== expectedSign) {
